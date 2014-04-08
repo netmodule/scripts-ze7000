@@ -160,7 +160,7 @@ case "$1" in
         fi
         
         bitbake $target
-        if [ $? -ne 0]; then
+        if [ $? -ne 0 ]; then
             echo "Bitbake failed"
             exit -1
         fi
