@@ -1,3 +1,5 @@
+#!/bin/bash
+
 # Generic build and init script for yocto projects
 CONFIG_DIR="./build-conf"
 FETCH_URI_FILE="$CONFIG_DIR/fetch-uri"
