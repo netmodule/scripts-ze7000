@@ -1,0 +1,2 @@
+./local.conf poky/build/conf/local.conf
+./bblayers.conf poky/build/conf/bblayers.conf
