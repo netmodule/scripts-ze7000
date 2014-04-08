@@ -6,6 +6,8 @@ FETCH_URI_FILE="$CONFIG_DIR/fetch-uri"
 COPY_LIST_FILE="$CONFIG_DIR/copy-list"
 ROOT_DIR="../"
 BUILD_DIR="build"
+TMP_IMAGE_DIR="$ROOT_DIR/poky/build/tmp/deploy/images/zynq-ze7000"
+IMAGE_DIR="$ROOT_DIR/images"
 TARGET_IMAGE="example-image"
 
 #Get absolute dirs
@@ -122,6 +124,15 @@ updateRepositories()
     cd $currDir
 }
 
+cleanTmp()
+{
+    echo "Clean up old builds"
+    currentDir=$(pwd)
+    cd $WORK_DIR/$BUILD_DIR
+    rm -rf ./cache ./sstate-cache ./tmp ./bitbake.lock
+    cd $currentDir
+}
+
 case "$1" in
     init)
         checkWorkDir
@@ -164,6 +175,31 @@ case "$1" in
             echo "Bitbake failed"
             exit -1
         fi
+        ;;
+    jenkins-nightly)
+        checkWorkDir
+        if [ $? -ne 0 ]; then
+            $0 init
+            if [ $? -ne 0 ]; then
+                echo "Could not initialize the build system!"
+                exit -1
+            fi
+        else
+            $0 update
+            cleanTmp
+        fi
+        
+        $0 build
+        if [ $? -ne 0 ]; then
+            echo "Jenkins build failed!"
+            exit -1
+        fi
+        
+        if [ ! -e $IMAGE_DIR ]; then
+            mkdir -p $IMAGE_DIR
+        fi
+        cp $TMP_IMAGE_DIR/* $IMAGE_DIR
+        
         ;;
     *)
         echo "usage: $0 {init|sync|build|toolchain}"
