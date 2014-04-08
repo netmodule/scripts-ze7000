@@ -61,6 +61,7 @@ initOpenEmbedded()
 {
     echo "Init open embedded"
     cd $WORK_DIR
+    echo "Current path: $(pwd)"
     source oe-init-build-env $BUILD_DIR > /dev/null
     return $?
 }
