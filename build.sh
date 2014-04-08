@@ -68,6 +68,16 @@ initOpenEmbedded()
     return $?
 }
 
+replaceVariables()
+{
+    file=$1
+    echo "Replace variables in file $file"
+    # Make workdir sed usable remove / with \/
+    workDir="${WORK_DIR//\//\\/}"
+    echo $file
+    sed -i "s/\\!{WORK_DIR}\\!/$workDir/g" $file
+}
+
 copyConfig()
 {
     while read copyFile; do
@@ -81,6 +91,7 @@ copyConfig()
             echo "Can not copy $src to $dst"
             exit -1
         fi
+        replaceVariables $dst
         cd - > /dev/null
     done < "$EXEC_DIR/$COPY_LIST_FILE"
 }
@@ -121,6 +132,10 @@ case "$1" in
         fi
         fetchRepositories
         initOpenEmbedded
+        if [ $? -ne 0 ]; then
+            echo "Could not initialize open embedded"
+            exit -1
+        fi
         cd $EXEC_DIR
         copyConfig
         ;;
