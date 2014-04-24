@@ -3,4 +3,5 @@ gitolite@git.netmodule.intranet:yocto/ext/meta-openembedded#dora
 gitolite@git.netmodule.intranet:yocto/ext/meta-xilinx#dora
 gitolite@git.netmodule.intranet:ZE7000/meta-xilinx-community#dora
 gitolite@git.netmodule.intranet:ZE7000/meta-netmodule-extras#dora
+gitolite@git.netmodule.intranet:ZE7000/meta-ze7000#dora
 

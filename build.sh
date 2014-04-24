@@ -10,6 +10,13 @@ TMP_IMAGE_DIR="$ROOT_DIR/poky/build/tmp/deploy/images/zynq-ze7000"
 IMAGE_DIR="$ROOT_DIR/images"
 TARGET_IMAGE="example-image"
 
+#Change to script directory
+execDir=$(pwd)
+
+scriptDir=$( dirname "${BASH_SOURCE[0]}")
+echo "Change to $scriptDir"
+cd $scriptDir
+
 #Get absolute dirs
 EXEC_DIR=$(pwd)
 cd $ROOT_DIR
@@ -24,6 +31,14 @@ firstRepo=$(head -n1 $FETCH_URI_FILE)
 repo=${firstRepo%%#*}
 dirName=${repo##*/}
 WORK_DIR="$ROOT_DIR/$dirName"
+
+source $CONFIG_DIR/set-env
+
+exitScript()
+{
+    cd $execDir
+    exit $1
+}
 
 checkWorkDir()
 {
@@ -83,6 +98,10 @@ replaceVariables()
 copyConfig()
 {
     while read copyFile; do
+        if [ "$copyFile" == "" ]; then
+            continue
+        fi
+             
         copyInst=($copyFile)
         src=${copyInst[0]}
         dst=$ROOT_DIR/${copyInst[1]}
@@ -91,7 +110,7 @@ copyConfig()
         cp $src $dst
         if [ $? -ne 0 ]; then
             echo "Can not copy $src to $dst"
-            exit -1
+            exitScript -1
         fi
         replaceVariables $dst
         cd - > /dev/null
@@ -133,19 +152,20 @@ cleanTmp()
     cd $currentDir
 }
 
+
 case "$1" in
     init)
         checkWorkDir
         if [ $? -eq 0 ]; then
             echo "Work dir $WORK_DIR already exists!"
             echo "Pleas do a clean up before a new init."
-            exit -1
+            exitScript -1
         fi
         fetchRepositories
         initOpenEmbedded
         if [ $? -ne 0 ]; then
             echo "Could not initialize open embedded"
-            exit -1
+            exitScript -1
         fi
         cd $EXEC_DIR
         copyConfig
@@ -162,18 +182,18 @@ case "$1" in
         if [ $? -ne 0 ]; then
             echo "Work dir $WORK_DIR does not exist!"
             echo "Pleas first do an init"
-            exit -1
+            exitScript -1
         fi
         initOpenEmbedded
         if [ $? -ne 0 ]; then
             echo "Could not initialize open embedded"
-            exit -1
+            exitScript -1
         fi
         
         bitbake $target
         if [ $? -ne 0 ]; then
             echo "Bitbake failed"
-            exit -1
+            exitScript -1
         fi
         ;;
     jenkins-nightly)
@@ -182,7 +202,7 @@ case "$1" in
             $0 init
             if [ $? -ne 0 ]; then
                 echo "Could not initialize the build system!"
-                exit -1
+                exitScript -1
             fi
         else
             $0 update
@@ -192,7 +212,7 @@ case "$1" in
         $0 build
         if [ $? -ne 0 ]; then
             echo "Jenkins build failed!"
-            exit -1
+            exitScript -1
         fi
         
         if [ ! -e $IMAGE_DIR ]; then
@@ -208,4 +228,6 @@ case "$1" in
         echo "  $0 update                       - pull changes from git"
         echo "  $0 build                        - build the default image"
         echo "  $0 build-<target-name>          - build the image"
-esac
+    esac
+    
+exitScript 0
