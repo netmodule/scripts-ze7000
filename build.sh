@@ -8,14 +8,14 @@ ROOT_DIR="../"
 BUILD_DIR="build"
 TMP_IMAGE_DIR="$ROOT_DIR/poky/build/tmp/deploy/images/zynq-ze7000"
 IMAGE_DIR="$ROOT_DIR/images"
-TARGET_IMAGE="example-image"
+TARGET_IMAGE="ze7000-image"
 
 #Change to script directory
 execDir=$(pwd)
-
 scriptDir=$( dirname "${BASH_SOURCE[0]}")
 echo "Change to $scriptDir"
 cd $scriptDir
+execName="./${0##*/}"
 
 #Get absolute dirs
 EXEC_DIR=$(pwd)
@@ -174,7 +174,8 @@ case "$1" in
         updateRepositories
         ;;
     build)
-        $0 build-example-image
+        $execName build-$TARGET_IMAGE
+        exitScript $?
         ;;
     build-*)
         target=${1#build-}
@@ -199,13 +200,13 @@ case "$1" in
     jenkins-nightly)
         checkWorkDir
         if [ $? -ne 0 ]; then
-            $0 init
+            $execName init
             if [ $? -ne 0 ]; then
                 echo "Could not initialize the build system!"
                 exitScript -1
             fi
         else
-            $0 update
+            $execName update
             cleanTmp
         fi
         
@@ -228,6 +229,7 @@ case "$1" in
         echo "  $0 update                       - pull changes from git"
         echo "  $0 build                        - build the default image"
         echo "  $0 build-<target-name>          - build the image"
+        echo "  $0 jenkins-nighlty              - build a nightly build"
     esac
     
 exitScript 0
