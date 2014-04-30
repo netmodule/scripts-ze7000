@@ -6,7 +6,7 @@ FETCH_URI_FILE="$CONFIG_DIR/fetch-uri"
 COPY_LIST_FILE="$CONFIG_DIR/copy-list"
 ROOT_DIR="../"
 BUILD_DIR="build"
-TMP_IMAGE_DIR="$ROOT_DIR/poky/build/tmp/deploy/images/zynq-ze7000"
+TMP_IMAGE_DIR="$ROOT_DIR/poky/build/tmp/deploy/images/ze7000-zynq7"
 IMAGE_DIR="$ROOT_DIR/images"
 TARGET_IMAGE="ze7000-image"
 
