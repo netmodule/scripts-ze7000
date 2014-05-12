@@ -17,7 +17,7 @@ ROOT_DIR=$(pwd)
 cd -
 
 #Set absolute image name
-IMAGE_NAME="$ROOT_DIR/poky/build/tmp/deploy/images/ze7000-zynq7/netjury-image-ze7000-zynq7.tar.bz2"
+IMAGE_NAME="$ROOT_DIR/poky/build/tmp/deploy/images/ze7000-zynq7/ze7000-image-ze7000-zynq7.tar.bz2"
 
 usage()
 {
@@ -44,7 +44,7 @@ formatSD()
     
     echo "New Cylinders: $newCylinders"
     
-    fdisk $1 <<"CYLINDERS_END"
+    fdisk $1 <<CYLINDERS_END
     x
     h
     255
@@ -55,7 +55,7 @@ formatSD()
     r
     w
 CYLINDERS_END
-    
+
     fdisk $1 <<"FDISK_END"
     n
     p
