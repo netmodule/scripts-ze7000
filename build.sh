@@ -62,6 +62,7 @@ fetchRepositories()
             echo "Clone $repoUri"
             git clone $repoUri
             dirName=${repoUri##*/}
+            dirName=${dirName%%.git}
             if [ "$branchName" != "" ]; then
                 cd $dirName
                 git checkout $branchName
@@ -127,6 +128,7 @@ updateRepositories()
         repoUri=${repo%%#*}
         branchName=${repo##*#}
         dirName=${repoUri##*/}
+        dirName=${dirName%%.git}
         if [ "$repoUri" != "" ]; then
             echo "Update $dirName from $repoUri"
             cd $dirName
