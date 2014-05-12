@@ -1,7 +1,7 @@
-gitolite@git.netmodule.intranet:yocto/ext/poky#dora
-gitolite@git.netmodule.intranet:yocto/ext/meta-openembedded#dora
-gitolite@git.netmodule.intranet:yocto/ext/meta-xilinx#dora
-gitolite@git.netmodule.intranet:ZE7000/meta-xilinx-community#dora
-gitolite@git.netmodule.intranet:ZE7000/meta-netmodule-extras#dora
-gitolite@git.netmodule.intranet:ZE7000/meta-ze7000#dora
+git://git.yoctoproject.org/poky#dora
+git://git.openembedded.org/meta-openembedded#dora
+git://git.yoctoproject.org/meta-xilinx#dora
+git://git.yoctoproject.org/meta-xilinx-community#1940ca7cc92880ec2a7073278c326f0d1096c09d
+https://github.com/netmodule/meta-netmodule-extras.git#dora
+https://github.com/netmodule/meta-ze7000.git#dora
 
