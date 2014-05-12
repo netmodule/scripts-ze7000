@@ -6,7 +6,6 @@ BOOT_MNT="/mnt/boot"
 #Change to script directory
 execDir=$(pwd)
 scriptDir=$( dirname "${BASH_SOURCE[0]}")
-echo "Change to $scriptDir"
 cd $scriptDir
 execName="./${0##*/}"
 
@@ -21,7 +20,8 @@ IMAGE_NAME="$ROOT_DIR/poky/build/tmp/deploy/images/ze7000-zynq7/ze7000-image-ze7
 
 usage()
 {
-    echo "usage: $0 <dev> <boot.bin> <image.ext4> <sd size>"
+    programName=$(basename $0)
+    echo "usage:  $programName <dev> <boot.bin> <image.tar.bz2>"
     echo "  dev:             SD device"
     echo "  boot.bin:        first boot bin"
     echo "  image.tar.bz2:   Rootfs"
@@ -108,6 +108,10 @@ untarRoot()
     tar -xjf $1 -C $ROOTFS_MNT
 }
 
+if [ "$1" == "--help" -o "$1" == "-h" ]; then
+    usage
+    exitScript 0
+fi
 
 if [ "$1" == "" ]; then
     echo "Please specify a SD device"
