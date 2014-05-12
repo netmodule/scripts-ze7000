@@ -197,31 +197,6 @@ case "$1" in
             exitScript -1
         fi
         ;;
-    jenkins-nightly)
-        checkWorkDir
-        if [ $? -ne 0 ]; then
-            $execName init
-            if [ $? -ne 0 ]; then
-                echo "Could not initialize the build system!"
-                exitScript -1
-            fi
-        else
-            $execName update
-            cleanTmp
-        fi
-        
-        $0 build
-        if [ $? -ne 0 ]; then
-            echo "Jenkins build failed!"
-            exitScript -1
-        fi
-        
-        if [ ! -e $IMAGE_DIR ]; then
-            mkdir -p $IMAGE_DIR
-        fi
-        cp $TMP_IMAGE_DIR/* $IMAGE_DIR
-        
-        ;;
     *)
         echo "usage: $0 {init|sync|build|toolchain}"
         echo "Example:"
@@ -229,7 +204,6 @@ case "$1" in
         echo "  $0 update                       - pull changes from git"
         echo "  $0 build                        - build the default image"
         echo "  $0 build-<target-name>          - build the image"
-        echo "  $0 jenkins-nighlty              - build a nightly build"
     esac
     
 exitScript 0
