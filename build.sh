@@ -154,6 +154,34 @@ cleanTmp()
     cd $currentDir
 }
 
+getLayerVersions()
+{    
+    i=0
+    while read repo; do
+        if [ $i -eq 0 ]; then
+            cd $ROOT_DIR
+        fi
+        repoUri=${repo%%#*}
+        branchName=${repo##*#}
+        dirName=${repoUri##*/}
+        dirName=${dirName%%.git}
+        if [ "$repoUri" != "" ]; then
+            cd $dirName
+            #Update the repository
+            fetchURL=$(git remote show origin |grep "Fetch URL:")
+            fetchURL=${fetchURL##*Fetch URL: }
+            revision=$(git rev-parse HEAD)
+            echo "$dirName: $fetchURL $revision"
+            # The first directory is the work directory
+            if [ $i -gt 0 ]; then
+                cd - > /dev/null
+            fi
+        fi
+
+        let i=i+1
+    done < "$EXEC_DIR/$FETCH_URI_FILE"
+    cd $currDir
+}
 
 case "$1" in
     init)
@@ -198,6 +226,9 @@ case "$1" in
             echo "Bitbake failed"
             exitScript -1
         fi
+        ;;
+    version-layer)
+        getLayerVersions
         ;;
     *)
         echo "usage: $0 {init|sync|build|toolchain}"
