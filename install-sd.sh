@@ -79,7 +79,7 @@ CYLINDERS_END
 FDISK_END
     
     mkfs.vfat -F 32 -n boot "$1"1
-    mkfs.ext2 -L root "$1"2
+    mkfs.ext4 -L root "$1"2
 }
 
 mountSD()
