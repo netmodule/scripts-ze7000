@@ -16,6 +16,9 @@ checkWorkDir()
 
 fetchRepositories()
 {
+    # Nightly or release build
+    buildType=$1
+
     echo "Fetch repositories..."
     currDir=$(pwd)
     i=0
@@ -24,13 +27,17 @@ fetchRepositories()
             cd $ROOT_DIR
         fi
         
-        repoUri=${repo%%#*}
-        branchName=${repo##*#}
+        repoUri=$(echo $repo | cut -d '#' -f 1)
         if [ "$repoUri" != "" ]; then
             echo "Clone $repoUri"
             git clone $repoUri
             dirName=${repoUri##*/}
             dirName=${dirName%%.git}
+            if [ "$buildType" == "release" ]; then
+                branchName=$(echo $repo | cut -d '#' -f 3)
+            else
+                 branchName=$(echo $repo | cut -d '#' -f 2)
+            fi
             if [ "$branchName" != "" ]; then
                 cd $dirName
                 git checkout $branchName
@@ -159,7 +166,7 @@ case "$1" in
             echo "Pleas do a clean up before a new init."
             exitScript -1
         fi
-        fetchRepositories
+        fetchRepositories $2
         initOpenEmbedded
         if [ $? -ne 0 ]; then
             echo "Could not initialize open embedded"

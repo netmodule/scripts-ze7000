@@ -1,6 +1,6 @@
-git://git.yoctoproject.org/poky#daisy
-git://git.openembedded.org/meta-openembedded#daisy
-git://git.yoctoproject.org/meta-xilinx#daisy
-git://git.yoctoproject.org/meta-xilinx-community#daisy
-https://github.com/netmodule/meta-netmodule-extras.git#daisy
-https://github.com/netmodule/meta-ze7000.git#master
+git://git.yoctoproject.org/poky#daisy#daisy
+git://git.openembedded.org/meta-openembedded#daisy#daisy
+git://git.yoctoproject.org/meta-xilinx#daisy#daisy
+git://git.yoctoproject.org/meta-xilinx-community#daisy#daisy
+https://github.com/netmodule/meta-netmodule-extras.git#daisy#daisy
+https://github.com/netmodule/meta-ze7000.git#master#daisy
