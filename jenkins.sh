@@ -31,9 +31,9 @@ nightly-linux()
 
 nightly-uboot()
 {
-	$BUILD_SCRIPT build-u-boot
+	$BUILD_SCRIPT build-u-boot-zx3
 	if [ $? -eq 0 ]; then
-		cp $TMP_IMAGE_DIR/u-boot.elf $IMAGE_DIR/"ze7000_u-boot_nightly-"$BUILD_NUMBER".elf"
+		cp $TMP_IMAGE_DIR/u-boot.elf $IMAGE_DIR/"u-boot_ze7000_nightly-"$BUILD_NUMBER".elf"
 	else
 		echo "Build failed!"
 		exit -1
@@ -79,9 +79,9 @@ release-uboot()
 	createImageDir
 	$BUILD_SCRIPT init release
 	if [ $? -eq 0 ]; then
-		$BUILD_SCRIPT build-u-boot
+		$BUILD_SCRIPT build-u-boot-zx3
 		if [ $? -eq 0 ]; then
-			cp $TMP_IMAGE_DIR/u-boot.elf $IMAGE_DIR/"ze7000_u-boot_release-"$(date +%Y.%m)"-"$BUILD_NUMBER".elf"
+			cp $TMP_IMAGE_DIR/u-boot.elf $IMAGE_DIR/"u-boot_ze7000_release-"$(date +%Y.%m)"-"$BUILD_NUMBER".elf"
 		else
 			echo "Build failed!"
 			exit -1
