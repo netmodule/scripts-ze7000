@@ -36,7 +36,7 @@ fetchRepositories()
             if [ "$buildType" == "release" ]; then
                 branchName=$(echo $repo | cut -d '#' -f 3)
             else
-                 branchName=$(echo $repo | cut -d '#' -f 2)
+                branchName=$(echo $repo | cut -d '#' -f 2)
             fi
             if [ "$branchName" != "" ]; then
                 cd $dirName
@@ -201,7 +201,7 @@ case "$1" in
             echo "Bitbake failed"
             exitScript -1
         fi
-	cd $EXECDIR
+        cd $EXECDIR
         ;;
     version-layer)
         getLayerVersions

@@ -13,7 +13,9 @@ IMAGE_DIR="$ROOT_DIR/images"
 TARGET_IMAGE="ze7000-image"
 
 BUILD_SCRIPT="./build.sh"
-IMAGE_NAME="$TARGET_IMAGE-ze7000-zynq7.tar.bz2"
+IMAGE_NAME_RAW="$TARGET_IMAGE-ze7000-zynq7"
+IMAGE_NAME_EXT="tar.bz2"
+IMAGE_NAME="$IMAGE_NAME_RAW.$IMAGE_NAME_EXT"
 
 #Change to script directory
 scriptDir=$( dirname "${BASH_SOURCE[0]}")
