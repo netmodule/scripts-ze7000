@@ -10,6 +10,14 @@ removeWorkDir()
 	return $?
 }
 
+removeImageDir()
+{
+	if [ -d $IMAGE_DIR ]; then
+		rm -fr  $IMAGE_DIR
+	fi
+	return $?
+}
+
 createImageDir()
 {
 	if [ ! -d $IMAGE_DIR ]; then
@@ -43,6 +51,7 @@ nightly-uboot()
 nightly()
 {
 	removeWorkDir
+	removeImageDir
 	createImageDir
 	$BUILD_SCRIPT init nightly
 	if [ $? -eq 0 ]; then
@@ -57,6 +66,7 @@ nightly()
 release()
 {
 	removeWorkDir
+	removeImageDir
 	createImageDir
 	$BUILD_SCRIPT init release
 	if [ $? -eq 0 ]; then
