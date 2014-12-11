@@ -86,6 +86,7 @@ release()
 release-uboot()
 {
 	removeWorkDir
+        removeImageDir
 	createImageDir
 	$BUILD_SCRIPT init release
 	if [ $? -eq 0 ]; then
