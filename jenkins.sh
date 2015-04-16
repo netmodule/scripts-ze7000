@@ -1,32 +1,15 @@
 #!/bin/bash
 
+# Automate a full project init, build and images storage
+# This script is usually called by the Continous Integration server
+# NetModule AG, 2015
+
+# Include common stuff and project specific environment
 . common.sh
 
-removeWorkDir()
-{
-  if [ -d $WORK_DIR ]; then
-    rm -fr $WORK_DIR
-  fi
-  return $?
-}
 
-removeImageDir()
-{
-  if [ -d $IMAGE_DIR ]; then
-    rm -fr  $IMAGE_DIR
-  fi
-  return $?
-}
-
-createImageDir()
-{
-  if [ ! -d $IMAGE_DIR ]; then
-    mkdir $IMAGE_DIR
-  fi
-  return $?
-}
-
-# Init the env, start a nightly build and copy the files to the default folder
+# Init the env, start a nightly build and copy
+# the files to the default folder
 nightly()
 {
   removeWorkDir
@@ -51,6 +34,8 @@ nightly()
   fi
 }
 
+# Init the env, start a release build and copy
+# the files to the default folder
 release()
 {
   removeWorkDir
@@ -60,7 +45,11 @@ release()
   if [ $? -eq 0 ]; then
     $BUILD_SCRIPT build
     if [ $? -eq 0 ]; then
-      cp $TMP_IMAGE_DIR/$IMAGE_NAME $IMAGE_DIR/$IMAGE_NAME_RAW"_release-"$(date +%Y.%m)"-"$BUILD_NUMBER"."$IMAGE_NAME_EXT
+      $BUILD_SCRIPT copy-images
+      if [ $? -ne 0 ]; then
+        echo "Image(s) copy failed"
+        exit -1
+      fi
     else
       echo "Build failed!"
       exit -1
@@ -71,36 +60,18 @@ release()
   fi
 }
 
-release-uboot()
-{
-  removeWorkDir
-  removeImageDir
-  createImageDir
-  $BUILD_SCRIPT init release
-  if [ $? -eq 0 ]; then
-    $BUILD_SCRIPT build-u-boot-zx3
-    if [ $? -eq 0 ]; then
-      cp $TMP_IMAGE_DIR/u-boot.elf $IMAGE_DIR/"u-boot_ze7000_release-"$(date +%Y.%m)"-"$BUILD_NUMBER".elf"
-    else
-      echo "Build failed!"
-      exit -1
-    fi
-  else
-    echo "Init failed"
-    exit -1
-  fi
-}
 
 case $1 in
-nightly)
-  nightly
-  ;;
+  nightly)
+    nightly
+    ;;
 
-release)
-  release
-  ;;
+  release)
+    release
+    ;;
 
-release-uboot)
-  release-uboot
-  ;;
+  *)
+    echo "usage: $0 {nightly|release}"
+    echo $WORK_DIR
+    ;;
 esac

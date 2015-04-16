@@ -1,20 +1,26 @@
 #!/bin/bash
 
-. common.sh
-.
+# Provide a abstraction for the common init, build and copy tasks
+# executed on daily base by developpers.
+# This script is usually called some developper or a "one-click"
+# continous integration script
 
+# NetModule AG, 2015
+
+# Include common stuff and project specific environment
+. common.sh
+
+# Exit the script with the specified return value
+# and jump back to the scripts folder
 exitScript()
 {
     cd $EXEC_DIR
     exit $1
 }
 
-checkWorkDir()
-{
-    echo "Check if $WORK_DIR exists"
-    return $(test -d $WORK_DIR)
-}
-
+# Fetch all repositories listed in conf/fetch-uri
+# The first repo, usually poky, will be the containing
+# directory for the other one.
 fetchRepositories()
 {
     # Nightly or release build
@@ -53,6 +59,8 @@ fetchRepositories()
     cd $currDir
 }
 
+# Load the open-embedded shell environment and jump in the
+# build directory
 initOpenEmbedded()
 {
     echo "Init open embedded"
@@ -145,12 +153,19 @@ getLayerVersions()
 
 case "$1" in
     init)
+
+        # Work dir will be created by the first checkout
         checkWorkDir
         if [ $? -eq 0 ]; then
             echo "Work dir $WORK_DIR already exists!"
             echo "Please do a clean up before a new init."
             exitScript -1
         fi
+
+        # Create the default image destination
+        createImageDir
+
+        # Fetch repos and initialize Poky
         fetchRepositories $2
         initOpenEmbedded
         if [ $? -ne 0 ]; then
@@ -163,8 +178,8 @@ case "$1" in
         updateRepositories
         ;;
     build)
-        target=${@:2:$#}
-        if [ -z "$target" ]; then
+        args=${@:2:$#}
+        if [ -z "$args" ]; then
             args=$BUILD_DEFAULT_LIST
         fi
 
@@ -181,7 +196,7 @@ case "$1" in
             exitScript -1
         fi
         
-        bitbake $(eval echo $target)
+        bitbake $(eval echo $args)
         if [ $? -ne 0 ]; then
             echo "Bitbake failed"
             exitScript -1
@@ -189,7 +204,11 @@ case "$1" in
         cd $EXECDIR
         ;;
     copy-images)
-        copyImages $IMAGE_DIR
+        args=${@:2:$#}
+        if [ -z "$args" ]; then
+            args=$IMAGE_DIR
+        fi
+        copyImages $args
         ;;
     version-layer)
         getLayerVersions
@@ -200,6 +219,7 @@ case "$1" in
         echo "  $0 init [release|master]        - clone and setup environment for the specified version"
         echo "  $0 update                       - pull changes from git"
         echo "  $0 build <recipe>               - build the default image(s) or the specified receipe"
+        echo "  $0 copy-images <destination>    - copy the image(s) to the default images folders or the specified one"
     esac
     
 exitScript 0
