@@ -18,46 +18,6 @@ exitScript()
     exit $1
 }
 
-# Fetch all repositories listed in conf/fetch-uri
-# The first repo, usually poky, will be the containing
-# directory for the other one.
-fetchRepositories()
-{
-    # Nightly or release build
-    buildType=$1
-
-    echo "Fetch repositories..."
-    currDir=$(pwd)
-    i=0
-    while read repo; do
-        if [ $i -eq 0 ]; then
-            cd $ROOT_DIR
-        fi
-        
-        repoUri=$(echo $repo | cut -d '#' -f 1)
-        if [ "$repoUri" != "" ]; then
-            echo "Clone $repoUri"
-            git clone $repoUri
-            dirName=${repoUri##*/}
-            dirName=${dirName%%.git}
-            if [ "$buildType" == "release" ]; then
-                branchName=$(echo $repo | cut -d '#' -f 3)
-            else
-                branchName=$(echo $repo | cut -d '#' -f 2)
-            fi
-            if [ "$branchName" != "" ]; then
-                cd $dirName
-                git checkout $branchName
-                # We have to be in the workdir after the first checkout
-                if [ $i -gt 0 ]; then
-                    cd ..
-                fi
-            fi
-        fi
-        let i=i+1
-    done < "$FETCH_URI_FILE"
-    cd $currDir
-}
 
 # Load the open-embedded shell environment and jump in the
 # build directory
@@ -86,8 +46,51 @@ copyImages()
   done
 }
 
+# Fetch all repositories listed in conf/fetch-uri
+# The first repo, usually poky, will be the containing
+# directory for the other one.
+fetchRepositories()
+{
+    # Nightly or release build
+    buildType=$1
+
+    echo "Fetch repositories..."
+    currDir=$(pwd)
+    i=0
+    while read repo; do
+        if [ $i -eq 0 ]; then
+            cd $ROOT_DIR
+        fi
+
+        repoUri=$(echo $repo | cut -d '#' -f 1)
+        if [ "$repoUri" != "" ]; then
+            echo "Clone $repoUri"
+            git clone $repoUri
+            dirName=${repoUri##*/}
+            dirName=${dirName%%.git}
+            if [ "$buildType" == "release" ]; then
+                branchName=$(echo $repo | cut -d '#' -f 3)
+            else
+                branchName=$(echo $repo | cut -d '#' -f 2)
+            fi
+            if [ "$branchName" != "" ]; then
+                cd $dirName
+                git checkout $branchName
+                # We have to be in the workdir after the first checkout
+                if [ $i -gt 0 ]; then
+                    cd ..
+                fi
+            fi
+        fi
+        let i=i+1
+    done < "$FETCH_URI_FILE"
+    cd $currDir
+}
+
+# Update the existing repository list
 updateRepositories()
 {   
+    currDir=$(pwd)
     i=0
     while read repo; do
         if [ $i -eq 0 ]; then
@@ -113,17 +116,10 @@ updateRepositories()
     cd $currDir
 }
 
-cleanTmp()
-{
-    echo "Clean up old builds"
-    currentDir=$(pwd)
-    cd $WORK_DIR/$BUILD_DIR
-    rm -rf ./cache ./sstate-cache ./tmp ./bitbake.lock
-    cd $currentDir
-}
-
+# Print out meta-layers name, URI and commit hash
 getLayerVersions()
 {    
+    currDir=$(pwd)
     i=0
     while read repo; do
         if [ $i -eq 0 ]; then
@@ -148,6 +144,16 @@ getLayerVersions()
 
         let i=i+1
     done < "$FETCH_URI_FILE"
+    cd $currDir
+}
+
+# Delete Yocto build output, but keep the configuration
+cleanTmp()
+{
+    currDir=$(pwd)
+    echo "Clean up old builds"
+    cd $WORK_DIR/$BUILD_DIR
+    rm -rf ./cache ./sstate-cache ./tmp ./bitbake.lock
     cd $currDir
 }
 
@@ -213,13 +219,18 @@ case "$1" in
     version-layer)
         getLayerVersions
         ;;
-    *)
+    clean-tmp)
+        cleanTmp
+        ;;
+*)
         echo "usage: $0 {init|sync|build|toolchain}"
         echo "Example:"
         echo "  $0 init [release|master]        - clone and setup environment for the specified version"
         echo "  $0 update                       - pull changes from git"
         echo "  $0 build <recipe>               - build the default image(s) or the specified receipe"
         echo "  $0 copy-images <destination>    - copy the image(s) to the default images folders or the specified one"
+        echo "  $0 version-layer                - print layers list and corresponding commit hash"
+        echo "  $0 clean-tmp                    - delete Yocto build output, but keep the configuration"
     esac
     
 exitScript 0
