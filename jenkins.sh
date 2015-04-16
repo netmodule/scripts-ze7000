@@ -26,28 +26,7 @@ createImageDir()
   return $?
 }
 
-nightly-linux()
-{
-  $BUILD_SCRIPT build
-  if [ $? -eq 0 ]; then
-    cp $TMP_IMAGE_DIR/$IMAGE_NAME $IMAGE_DIR/$IMAGE_NAME_RAW"_nightly-"$BUILD_NUMBER"."$IMAGE_NAME_EXT
-  else
-    echo "Build failed!"
-    exit -1
-  fi
-}
-
-nightly-uboot()
-{
-  $BUILD_SCRIPT build-u-boot-zx3
-  if [ $? -eq 0 ]; then
-    cp $TMP_IMAGE_DIR/u-boot.elf $IMAGE_DIR/"u-boot_ze7000_nightly-"$BUILD_NUMBER".elf"
-  else
-    echo "Build failed!"
-    exit -1
-  fi
-}
-
+# Init the env, start a nightly build and copy the files to the default folder
 nightly()
 {
   removeWorkDir
@@ -55,8 +34,17 @@ nightly()
   createImageDir
   $BUILD_SCRIPT init nightly
   if [ $? -eq 0 ]; then
-    nightly-uboot
-    nightly-linux
+    $BUILD_SCRIPT build
+    if [ $? -eq 0 ]; then
+      $BUILD_SCRIPT copy-images
+      if [ $? -ne 0 ]; then
+        echo "Image(s) copy failed"
+        exit -1
+      fi
+    else
+      echo "Build failed!"
+      exit -1
+    fi
   else
     echo "Init failed"
     exit -1

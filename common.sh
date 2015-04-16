@@ -3,7 +3,6 @@
 # Generic build and init script for yocto projects
 CONFIG_DIR="./build-conf"
 FETCH_URI_FILE="$CONFIG_DIR/fetch-uri"
-COPY_LIST_FILE="$CONFIG_DIR/copy-list"
 
 #Root paths
 ROOT_DIR="../"
@@ -16,6 +15,9 @@ BUILD_SCRIPT="./build.sh"
 IMAGE_NAME_RAW="$TARGET_IMAGE-ze7000-zynq7"
 IMAGE_NAME_EXT="tar.bz2"
 IMAGE_NAME="$IMAGE_NAME_RAW.$IMAGE_NAME_EXT"
+
+# Default build
+BUILD_DEFAULT_LIST="ze7000-image virtual/kernel u-boot-zx3"
 
 #Change to script directory
 scriptDir=$( dirname "${BASH_SOURCE[0]}")
@@ -38,4 +40,6 @@ repo=${firstRepo%%#*}
 dirName=${repo##*/}
 WORK_DIR="$ROOT_DIR/$dirName"
 
+# Get additional environment variables
 source $CONFIG_DIR/set-env
+source $CONFIG_DIR/copy-list

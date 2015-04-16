@@ -1,6 +1,7 @@
 #!/bin/bash
 
 . common.sh
+.
 
 exitScript()
 {
@@ -61,36 +62,20 @@ initOpenEmbedded()
     return $?
 }
 
-replaceVariables()
+# Copy the files list specified in the configuration
+# to a destination passed by parameter
+copyImages()
 {
-    file=$1
-    echo "Replace variables in file $file"
-    # Make workdir sed usable remove / with \/
-    workDir="${WORK_DIR//\//\\/}"
-    echo $file
-    sed -i "s/\\!{WORK_DIR}\\!/$workDir/g" $file
-}
+  # Get files to copy from the configuration
+  FILES=$COPY_LIST
+  SRC=$TMP_IMAGE_DIR
+  DEST=$1
 
-copyConfig()
-{
-    while read copyFile; do
-        if [ "$copyFile" == "" ]; then
-            continue
-        fi
-             
-        copyInst=($copyFile)
-        src=${copyInst[0]}
-        dst=$ROOT_DIR/${copyInst[1]}
-        echo "Copy $src to $dst"
-        cd $CONFIG_DIR
-        cp $src $dst
-        if [ $? -ne 0 ]; then
-            echo "Can not copy $src to $dst"
-            exitScript -1
-        fi
-        replaceVariables $dst
-        cd - > /dev/null
-    done < "$EXEC_DIR/$COPY_LIST_FILE"
+  # Copy the files
+  for file in $FILES
+  do
+    cp $SRC/$file $DEST
+  done
 }
 
 updateRepositories()
@@ -163,7 +148,7 @@ case "$1" in
         checkWorkDir
         if [ $? -eq 0 ]; then
             echo "Work dir $WORK_DIR already exists!"
-            echo "Pleas do a clean up before a new init."
+            echo "Please do a clean up before a new init."
             exitScript -1
         fi
         fetchRepositories $2
@@ -173,35 +158,38 @@ case "$1" in
             exitScript -1
         fi
         cd $EXEC_DIR
-        copyConfig
         ;;
     update)
         updateRepositories
         ;;
     build)
-        $execName build-$TARGET_IMAGE
-        exitScript $?
-        ;;
-    build-*)
-        target=${1#build-}
+        target=${@:2:$#}
+        if [ -z "$target" ]; then
+            args=$BUILD_DEFAULT_LIST
+        fi
+
         checkWorkDir
         if [ $? -ne 0 ]; then
             echo "Work dir $WORK_DIR does not exist!"
-            echo "Pleas first do an init"
+            echo "Please first do an init"
             exitScript -1
         fi
+
         initOpenEmbedded
         if [ $? -ne 0 ]; then
             echo "Could not initialize open embedded"
             exitScript -1
         fi
         
-        bitbake $target
+        bitbake $(eval echo $target)
         if [ $? -ne 0 ]; then
             echo "Bitbake failed"
             exitScript -1
         fi
         cd $EXECDIR
+        ;;
+    copy-images)
+        copyImages $IMAGE_DIR
         ;;
     version-layer)
         getLayerVersions
@@ -209,10 +197,9 @@ case "$1" in
     *)
         echo "usage: $0 {init|sync|build|toolchain}"
         echo "Example:"
-        echo "  $0 init                         - clone and setup environment"
+        echo "  $0 init [release|master]        - clone and setup environment for the specified version"
         echo "  $0 update                       - pull changes from git"
-        echo "  $0 build                        - build the default image"
-        echo "  $0 build-<target-name>          - build the image"
+        echo "  $0 build <recipe>               - build the default image(s) or the specified receipe"
     esac
     
 exitScript 0
