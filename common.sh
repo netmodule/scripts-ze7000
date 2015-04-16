@@ -3,39 +3,40 @@
 # Generic bits for init and build scripts on Yocto projects
 # NetModule AG, 2015
 
-# Location of the scripts configuration
-CONFIG_DIR="./build-conf"
-FETCH_URI_FILE="$CONFIG_DIR/fetch-uri"
+# Relative path to the configuration files
+CONFIG_DIR="./conf"
 
-#Root paths
-ROOT_DIR="../"
-BUILD_DIR="build"
-TMP_IMAGE_DIR="$ROOT_DIR/poky/build/tmp/deploy/images/ze7000-zynq7"
-IMAGE_DIR="$ROOT_DIR/images"
-
+# Relative path to the main script
 BUILD_SCRIPT="./build.sh"
 
-#Change to script directory
+# Root path. Images and Poky will be sub-folders
+ROOT_DIR="../"
+
+# Name of the yocto build directory
+BUILD_DIR="build"
+
+# Default destination for the target images
+IMAGE_DIR="$ROOT_DIR/images"
+
+# Change to script directory
 scriptDir=$( dirname "${BASH_SOURCE[0]}")
 echo "Change to $scriptDir"
 cd $scriptDir
-execName="./${0##*/}"
 
-#Get absolute dirs
+# Get absolute dirs paths
 EXEC_DIR=$(pwd)
-cd $ROOT_DIR
-ROOT_DIR=$(pwd)
-cd - > /dev/null
+ROOT_DIR=$(readlink -f $ROOT_DIR)
+CONFIG_DIR=$(readlink -f $CONFIG_DIR)
 
-cd $CONFIG_DIR
-CONFIG_DIR=$(pwd)
-cd - > /dev/null
+# Absolute path to the list of repo to clone
+FETCH_URI_FILE="$CONFIG_DIR/fetch-uri"
 
 # Working dir is the first repository folder, in the RootDir
 firstRepo=$(head -n1 $FETCH_URI_FILE)
 repo=${firstRepo%%#*}
 dirName=${repo##*/}
 WORK_DIR="$ROOT_DIR/$dirName"
+
 
 # Create Poky directory
 removeWorkDir()
@@ -69,6 +70,12 @@ createImageDir()
     mkdir $IMAGE_DIR
   fi
   return $?
+}
+
+# Return the build output image directory of Yocto
+getBuildOutputDir()
+{
+    echo "$WORK_DIR/$BUILD_DIR/tmp/deploy/images/$MACHINE"
 }
 
 

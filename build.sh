@@ -55,7 +55,7 @@ fetchRepositories()
             fi
         fi
         let i=i+1
-    done < "$EXEC_DIR/$FETCH_URI_FILE"
+    done < "$FETCH_URI_FILE"
     cd $currDir
 }
 
@@ -76,7 +76,7 @@ copyImages()
 {
   # Get files to copy from the configuration
   FILES=$COPY_LIST
-  SRC=$TMP_IMAGE_DIR
+  SRC=$(getBuildOutputDir)
   DEST=$1
 
   # Copy the files
@@ -109,7 +109,7 @@ updateRepositories()
         fi
                 
         let i=i+1
-    done < "$EXEC_DIR/$FETCH_URI_FILE"
+    done < "$FETCH_URI_FILE"
     cd $currDir
 }
 
@@ -147,7 +147,7 @@ getLayerVersions()
         fi
 
         let i=i+1
-    done < "$EXEC_DIR/$FETCH_URI_FILE"
+    done < "$FETCH_URI_FILE"
     cd $currDir
 }
 
@@ -201,7 +201,7 @@ case "$1" in
             echo "Bitbake failed"
             exitScript -1
         fi
-        cd $EXECDIR
+        cd $EXEC_DIR
         ;;
     copy-images)
         args=${@:2:$#}
