@@ -15,9 +15,6 @@ ROOT_DIR="../"
 # Name of the yocto build directory
 BUILD_DIR="build"
 
-# Default destination for the target images
-IMAGE_DIR="$ROOT_DIR/images"
-
 # Change to script directory
 scriptDir=$( dirname "${BASH_SOURCE[0]}")
 echo "Change to $scriptDir"
@@ -27,6 +24,9 @@ cd $scriptDir
 EXEC_DIR=$(pwd)
 ROOT_DIR=$(readlink -f $ROOT_DIR)
 CONFIG_DIR=$(readlink -f $CONFIG_DIR)
+
+# Default destination for the target images
+IMAGE_DIR="$ROOT_DIR/images"
 
 # Absolute path to the list of repo to clone
 FETCH_URI_FILE="$CONFIG_DIR/fetch-uri"

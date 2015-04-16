@@ -157,6 +157,23 @@ cleanTmp()
     cd $currDir
 }
 
+# Get all AUTO_REV version in all layers
+getSrcrevs()
+{
+    # Just return all AUTO_REVs if called without args
+    buildhistory-collect-srcrevs
+}
+
+# Save the Yocto configuration to the images / artifact folder
+backupYoctoConfiguration()
+{
+    OUTPUT_LOCAL_CONF="$IMAGE_DIR/local.conf"
+    cp $WORK_DIR/$BUILD_DIR/conf/local.conf $OUTPUT_LOCAL_CONF
+
+    # Freeze the versions
+    getSrcrevs >> $OUTPUT_LOCAL_CONF
+}
+
 case "$1" in
     init)
 
@@ -207,6 +224,8 @@ case "$1" in
             echo "Bitbake failed"
             exitScript -1
         fi
+
+        backupYoctoConfiguration
         cd $EXEC_DIR
         ;;
     copy-images)
@@ -222,6 +241,16 @@ case "$1" in
     clean-tmp)
         cleanTmp
         ;;
+    get-autorevs)
+        initOpenEmbedded &>/dev/null
+        if [ $? -ne 0 ]; then
+            echo "Could not initialize open embedded"
+            exitScript -1
+        fi
+
+        getSrcrevs
+        ;;
+
 *)
         echo "usage: $0 {init|sync|build|toolchain}"
         echo "Example:"
@@ -231,6 +260,7 @@ case "$1" in
         echo "  $0 copy-images <destination>    - copy the image(s) to the default images folders or the specified one"
         echo "  $0 version-layer                - print layers list and corresponding commit hash"
         echo "  $0 clean-tmp                    - delete Yocto build output, but keep the configuration"
+        echo "  $0 get-autorevs                 - print the list of all packages with AUTO_REVS version"
     esac
     
 exitScript 0
