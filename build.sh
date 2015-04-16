@@ -46,6 +46,27 @@ copyImages()
   done
 }
 
+# Copy the manifest of image specified in the configuration
+# to a destination passed by parameter
+copyImagesManifest()
+{
+    # Get revelvant images listfrom the configuration
+    FILES=$COPY_MANIFEST_LIST
+    IMG_PATH=$(getBuildOutputDir)
+    DEST=$1
+
+    # Copy the files
+    for file in $FILES
+    do
+        img="$IMG_PATH/$file"
+        timestamp=$(readlink $img | cut -d '.' -f 1 | awk -F "-" '{print $NF}')
+        name=$(echo $file | cut -d'.' -f1)
+        manifest="$WORK_DIR/$BUILD_DIR/tmp/deploy/licenses/$name-$timestamp/license.manifest"
+        echo "Copy $manifest to $DEST/$name.manifest ..."
+        cp "$manifest" "$DEST/$name.manifest"
+    done
+}
+
 # Fetch all repositories listed in conf/fetch-uri
 # The first repo, usually poky, will be the containing
 # directory for the other one.
@@ -234,6 +255,7 @@ case "$1" in
             args=$IMAGE_DIR
         fi
         copyImages $args
+        copyImagesManifest $args
         ;;
     version-layer)
         getLayerVersions
