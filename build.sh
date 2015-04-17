@@ -188,10 +188,11 @@ getSrcrevs()
 # Save the Yocto configuration to the images / artifact folder
 backupYoctoConfiguration()
 {
-    OUTPUT_LOCAL_CONF="$IMAGE_DIR/local.conf"
+    OUTPUT_LOCAL_CONF="$IMAGE_DIR/yocto-local.conf"
     cp $WORK_DIR/$BUILD_DIR/conf/local.conf $OUTPUT_LOCAL_CONF
 
     # Freeze the versions
+    # BuildHistory must be enabled, else an error will be dumped
     getSrcrevs >> $OUTPUT_LOCAL_CONF
 }
 
