@@ -30,6 +30,32 @@ initOpenEmbedded()
     return $?
 }
 
+# Overwrite the Yocto configuration generated from the
+# template if there is some input value therefore
+setDLDir()
+{
+    CONF="$WORK_DIR/$BUILD_DIR/conf/local.conf"
+    TMP="$WORK_DIR/$BUILD_DIR/conf/local.conf.tmp"
+
+    sed 's;^#*DL_DIR.*;DL_DIR = \"'"$1"\"';' < $CONF  > $TMP
+    cp $TMP $CONF
+    rm -rf $TMP
+}
+
+updateYoctoConfiguration()
+{
+    # Download directory
+    if [ -n "$DL_DIR" ]; then
+        echo "Overwriting download directory with environment value";
+        setDLDir $DL_DIR
+    elif [ -n "$DL_DIR_CUST" ]; then
+        echo "Overwriting download directory with script configuration value";
+        setDLDir $DL_DIR_CUST
+    else
+        echo "Using default download directory"
+    fi
+}
+
 # Copy the files list specified in the configuration
 # to a destination passed by parameter
 copyImages()
@@ -218,6 +244,9 @@ case "$1" in
             exitScript -1
         fi
         cd $EXEC_DIR
+
+        # Update the Yocto configuration if needed
+        updateYoctoConfiguration
         ;;
     update)
         updateRepositories
