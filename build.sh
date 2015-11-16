@@ -61,9 +61,9 @@ updateYoctoConfiguration()
 copyImages()
 {
   # Get files to copy from the configuration
-  FILES=$COPY_LIST
   SRC=$(getBuildOutputDir)
   DEST=$1
+  FILES=$2
 
   # Copy the files
   for file in $FILES
@@ -284,7 +284,11 @@ case "$1" in
         if [ -z "$args" ]; then
             args=$IMAGE_DIR
         fi
-        copyImages $args
+        images=${@:3:$#}
+        if [ -z "$images" ]; then
+            images=$COPY_LIST
+        fi
+        copyImages $args $images
         copyImagesManifest $args
         ;;
     version-layer)
@@ -304,12 +308,12 @@ case "$1" in
         ;;
 
 *)
-        echo "usage: $0 {init|sync|build|toolchain}"
+        echo "usage: $0 {init|update|build|copy-images|version-layer|clean-tmp|get-autorevs}"
         echo "Example:"
         echo "  $0 init [release|master]        - clone and setup environment for the specified version"
         echo "  $0 update                       - pull changes from git"
         echo "  $0 build <recipe>               - build the default image(s) or the specified receipe"
-        echo "  $0 copy-images <destination>    - copy the image(s) to the default images folders or the specified one"
+        echo "  $0 copy-images <destination> <files> - copy the image(s) to the default images folders or the specified one"
         echo "  $0 version-layer                - print layers list and corresponding commit hash"
         echo "  $0 clean-tmp                    - delete Yocto build output, but keep the configuration"
         echo "  $0 get-autorevs                 - print the list of all packages with AUTO_REVS version"
