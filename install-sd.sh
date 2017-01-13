@@ -38,48 +38,48 @@ formatSD()
     dd if=/dev/zero of=$1 bs=1024 count=1
     sleep 1
     size=$(fdisk -l |grep "Disk $1:")
-    size=${size##*, }
-    size=${size%% bytes}
+    size=${size#*, }
+    size=${size%% bytes*}
     let newCylinders=size/8225280
     
     echo "New Cylinders: $newCylinders"
     
     fdisk $1 <<CYLINDERS_END
-    x
-    h
-    255
-    s
-    63
-    c
-    $newCylinders
-    r
-    w
+x
+h
+255
+s
+63
+c
+$newCylinders
+r
+w
 CYLINDERS_END
 
     fdisk $1 <<"FDISK_END"
-    n
-    p
-    1
-    
-    +200M
-    n
-    p
-    2
-    
-    
-    a
-    1
-    t
-    1
-    c
-    t
-    2
-    83
-    w
+n
+p
+1
+
++200M
+n
+p
+2
+
+
+a
+1
+t
+1
+c
+t
+2
+83
+w
 FDISK_END
     
     mkfs.vfat -F 32 -n boot "$1"1
-    mkfs.ext4 -L root "$1"2
+    mkfs.ext4 -F -L root "$1"2
 }
 
 mountSD()
